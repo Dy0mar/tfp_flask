@@ -41,6 +41,7 @@ class BaseConfig(object):
 
 class DevelopmentConfig(BaseConfig):
     def __init__(self, *args, **kwargs):
+        print('*' * 100, 'develop config')
         self.FLASK_DEBUG = True
         self.DEBUG = True
         super().__init__(*args, **kwargs)
@@ -49,6 +50,7 @@ class DevelopmentConfig(BaseConfig):
 class ProductionConfig(BaseConfig):
     def __init__(self, *args, **kwargs):
         db_url = os.environ.get('DATABASE_URL')
+        print('*'*100, 'production config')
         if db_url:
             self.SQLALCHEMY_DATABASE_URI = db_url
 
