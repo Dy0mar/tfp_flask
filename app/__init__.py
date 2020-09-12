@@ -130,7 +130,12 @@ def requires_auth(f):
 @requires_auth
 def get_users():
     items = User.query.all()
-    return jsonify(users=[item.serialize for item in items], error=False)
+    data = {
+        'access': True,
+        'users': [item.serialize for item in items],
+        'current_user_email': _request_ctx_stack.top.current_user.get('email')
+    }
+    return jsonify(**data)
 
 
 @app.route('/api/delete/<int:user_id>', methods=['DELETE'])
@@ -143,7 +148,7 @@ def delete_user(user_id):
         )
     ctx = _request_ctx_stack.top
 
-    data = {'delete': 'ok'}
+    data = {}
     if user.email == ctx.current_user.get('email'):
         data['logout'] = True
         db.session.delete(user)
@@ -155,6 +160,10 @@ def delete_user(user_id):
 @app.route('/api/get-access/', methods=['POST'])
 def get_access():
     if request.method == 'POST':
+        data = {
+            'create': 'ok',
+            'error': False
+        }
         email = request.json.get('email')
         assert email
         user = User.query.filter_by(email=email).first()
@@ -164,14 +173,21 @@ def get_access():
         token = secrets.token_urlsafe(64)
         user = User(email=email, token=token, access=True)
 
-        # save to db
-        db.session.add(user)
-        db.session.commit()
-
         base_url = app.config.get('BASE_URL')
         # send mail
-        user.send_email_for_confirmation(base_url)
-        return jsonify(create='ok', error=False)
+        send = user.send_email_for_confirmation(base_url)
+
+        # save to db
+        if send:
+            db.session.add(user)
+            db.session.commit()
+        else:
+            data = {
+                'error': True,
+                'message': 'Email sending failed'
+            }
+
+        return jsonify(**data)
 
     return jsonify(error=True)
 

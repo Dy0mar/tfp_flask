@@ -17,8 +17,13 @@ class User(db.Model):
         html = f'Follow the <a href="{link}">link</a> to confirm this email.'
         msg = Message('Hello', recipients=[self.email])
         msg.html = html
-        mail.send(msg)
+        try:
+            mail.send(msg)
+        except Exception:
+            return False
         print(link)
+        return True
+
 
     @property
     def serialize(self):
