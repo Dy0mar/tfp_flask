@@ -19,7 +19,8 @@ class User(db.Model):
         msg.html = html
         try:
             mail.send(msg)
-        except Exception:
+        except Exception as e:
+            print(e)
             return False
         print(link)
         return True
