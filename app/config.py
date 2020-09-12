@@ -6,7 +6,7 @@ from dotenv import load_dotenv, find_dotenv
 basedir = os.path.abspath(os.path.dirname(__file__))
 
 env = os.path.join(basedir, '.env')
-load_dotenv(find_dotenv(filename=env, raise_error_if_not_found=False))
+load_dotenv(find_dotenv(filename=env))
 
 
 class BaseConfig(object):
