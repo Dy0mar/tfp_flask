@@ -1,4 +1,3 @@
-from flask import request
 from flask_mail import Message
 
 from app import db, mail
@@ -8,7 +7,7 @@ class User(db.Model):
     __tablename__ = 'users'
     id = db.Column(db.Integer, primary_key=True)
     email = db.Column(db.String(255), unique=True)
-    token = db.Column(db.String(64))
+    token = db.Column(db.String(255))
     hit = db.Column(db.Integer, default=0)
     access = db.Column(db.Boolean(), default=False)
     email_confirmed = db.Column(db.Boolean(), default=False)
