@@ -1,0 +1,14 @@
+*.save
+*.pyc
+*.log
+*.sock
+*.sqlite3
+.idea/*
+frontend/node_modules/
+frontend/public/
+frontend/src/
+frontend/package.json
+frontend/package-lock.json
+frontend/yarn.lock
+assets/*
+app/.env
