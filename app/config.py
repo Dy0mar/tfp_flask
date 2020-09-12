@@ -13,12 +13,9 @@ class BaseConfig(object):
     FLASK_DEBUG = False
 
     # database
-    SQLALCHEMY_DATABASE_URI = 'sqlite:///' + os.path.join(basedir, 'db.sqlite3')
+    SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL') or \
+                              'sqlite:///' + os.path.join(basedir, 'db.sqlite3')
     SQLALCHEMY_TRACK_MODIFICATIONS = False
-
-    # generate test data
-    GENERATE = bool(int(os.environ.get('GENERATE', 0)))
-    GENERATE_TEST_ROWS = int(os.environ.get('GENERATE_TEST_ROWS', 0))
 
     # Pagination
     DEFAULT_PER_PAGE = int(os.environ.get('DEFAULT_PER_PAGE', 0))
@@ -41,17 +38,10 @@ class BaseConfig(object):
 
 class DevelopmentConfig(BaseConfig):
     def __init__(self, *args, **kwargs):
-        print('*' * 100, 'develop config')
         self.FLASK_DEBUG = True
         self.DEBUG = True
         super().__init__(*args, **kwargs)
 
 
 class ProductionConfig(BaseConfig):
-    def __init__(self, *args, **kwargs):
-        db_url = os.environ.get('DATABASE_URL')
-        print('*'*100, 'production config')
-        if db_url:
-            self.SQLALCHEMY_DATABASE_URI = db_url
-
-        super().__init__(*args, **kwargs)
+    pass
