@@ -36,6 +36,8 @@ class BaseConfig(object):
     MAIL_USE_SSL = os.environ.get('MAIL_USE_SSL')
     MAIL_DEFAULT_SENDER = os.environ.get('MAIL_DEFAULT_SENDER')
 
+    BASE_URL = os.environ.get('BASE_URL')
+
 
 class DevelopmentConfig(BaseConfig):
     def __init__(self, *args, **kwargs):

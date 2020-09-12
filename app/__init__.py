@@ -168,8 +168,9 @@ def get_access():
         db.session.add(user)
         db.session.commit()
 
+        base_url = app.config.get('BASE_URL')
         # send mail
-        user.send_email_for_confirmation()
+        user.send_email_for_confirmation(base_url)
         return jsonify(create='ok', error=False)
 
     return jsonify(error=True)

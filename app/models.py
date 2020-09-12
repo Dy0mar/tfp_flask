@@ -13,12 +13,12 @@ class User(db.Model):
     access = db.Column(db.Boolean(), default=False)
     email_confirmed = db.Column(db.Boolean(), default=False)
 
-    def send_email_for_confirmation(self):
-        link = f"{request.base_url}confirm/?token={self.token}"
+    def send_email_for_confirmation(self, base_url):
+        link = f"{base_url}/confirm/{self.token}"
         html = f'Follow the <a href="{link}">link</a> to confirm this email.'
         msg = Message('Hello', recipients=[self.email])
         msg.html = html
-        mail.send(msg)
+        # mail.send(msg)
         print(link)
 
     @property
