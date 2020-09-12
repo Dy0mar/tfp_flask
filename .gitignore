@@ -10,5 +10,6 @@ frontend/src/
 frontend/package.json
 frontend/package-lock.json
 frontend/yarn.lock
+frontend/.env
 assets/*
 app/.env
