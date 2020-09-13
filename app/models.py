@@ -20,7 +20,7 @@ class User(db.Model):
         msg.html = html
         try:
             pass
-            # mail.send(msg)
+            mail.send(msg)
         except Exception as e:
             print(e)
             return False
