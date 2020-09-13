@@ -11,6 +11,7 @@ class User(db.Model):
     hit = db.Column(db.Integer, default=0)
     access = db.Column(db.Boolean(), default=False)
     email_confirmed = db.Column(db.Boolean(), default=False)
+    is_admin = db.Column(db.Boolean(), default=False)
 
     def send_email_for_confirmation(self, base_url):
         link = f"{base_url}/confirm/{self.token}"
@@ -18,7 +19,8 @@ class User(db.Model):
         msg = Message('Hello', recipients=[self.email])
         msg.html = html
         try:
-            mail.send(msg)
+            pass
+            # mail.send(msg)
         except Exception as e:
             print(e)
             return False
@@ -34,6 +36,7 @@ class User(db.Model):
             'token': f'...{self.token[-20:]}',
             'hit': self.hit,
             'access': self.access,
+            'is_admin': self.is_admin,
             'email_confirmed': self.email_confirmed,
         }
 

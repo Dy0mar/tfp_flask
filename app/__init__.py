@@ -126,14 +126,25 @@ def requires_auth(f):
     return decorated
 
 
+def get_current_user():
+    current_user_email = _request_ctx_stack.top.current_user.get('email')
+    user = User.query.filter_by(email=current_user_email).first()
+    return user
+
+
 @app.route('/api/users/', methods=['GET'])
 @requires_auth
 def get_users():
+    user = get_current_user()
+    if not user.access:
+        return jsonify(access=False)
+
     items = User.query.all()
     data = {
         'access': True,
+        'is_admin': user.is_admin,
         'users': [item.serialize for item in items],
-        'current_user_email': _request_ctx_stack.top.current_user.get('email')
+        'current_user_email': user.email
     }
     return jsonify(**data)
 
@@ -141,19 +152,41 @@ def get_users():
 @app.route('/api/delete/<int:user_id>', methods=['DELETE'])
 @requires_auth
 def delete_user(user_id):
-    user = User.query.filter_by(id=user_id).first()
-    if not user:
+    current_user = get_current_user()
+    deletion_obj = User.query.filter_by(id=user_id).first()
+
+    if not deletion_obj:
         raise CommonError(
             {"code": "user_no_found", "description": "User not found"}, 401
         )
-    ctx = _request_ctx_stack.top
 
     data = {}
-    if user.email == ctx.current_user.get('email'):
+    if deletion_obj.email == current_user.email:
         data['logout'] = True
-        db.session.delete(user)
+        db.session.delete(deletion_obj)
         db.session.commit()
 
+    elif current_user.is_admin:
+        db.session.delete(deletion_obj)
+        db.session.commit()
+
+    return jsonify(**data)
+
+
+@app.route('/api/set-access/<int:user_id>', methods=['GET'])
+@requires_auth
+def set_access(user_id):
+    current_user = get_current_user()
+
+    data = {}
+    if current_user.is_admin:
+        user = User.query.filter_by(id=user_id).first()
+        user.access = False if user.access else True
+        db.session.add(user)
+        db.session.commit()
+        data = {**user.serialize}
+
+        return jsonify(**data)
     return jsonify(**data)
 
 
@@ -171,7 +204,7 @@ def get_access():
             return jsonify(error=True, message="email is already exists")
 
         token = secrets.token_urlsafe(64)
-        user = User(email=email, token=token, access=True)
+        user = User(email=email, token=token)
 
         base_url = app.config.get('BASE_URL')
         # send mail
@@ -204,6 +237,7 @@ def confirm():
 
     if not user.email_confirmed:
         user.email_confirmed = True
+        user.access = True
     user.hit += 1
     db.session.add(user)
     db.session.commit()
